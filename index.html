@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>あのゲーム</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            padding-top: max(10px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            padding-left: max(10px, env(safe-area-inset-left));
+            padding-right: max(10px, env(safe-area-inset-right));
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        
+        #gameContainer {
+            max-width: min(400px, 95vw);
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            margin-bottom: max(60px, env(safe-area-inset-bottom));
+        }
+        
+        h1 {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            margin: 10px 0;
+        }
+        
+        #gameCanvas {
+            border: 3px solid #fff;
+            border-radius: 15px;
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            cursor: crosshair;
+            width: 100%;
+            height: auto;
+            max-width: 400px;
+            touch-action: none;
+        }
+        
+        #gameInfo {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            font-size: clamp(14px, 3.5vw, 18px);
+            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        #nextBall {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: clamp(14px, 3.5vw, 16px);
+        }
+        
+        #nextBallPreview {
+            width: clamp(35px, 8vw, 45px);
+            height: clamp(35px, 8vw, 45px);
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        #controls {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: clamp(14px, 3.5vw, 16px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            min-width: 80px;
+            touch-action: manipulation;
+        }
+        
+        button:hover, button:active {
+            transform: scale(0.95);
+        }
+        
+        #gameOver {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            display: none;
+            text-align: center;
+            max-width: 90vw;
+            z-index: 1000;
+        }
+        
+        .instructions {
+            margin-top: 15px;
+            margin-bottom: max(40px, env(safe-area-inset-bottom));
+            font-size: clamp(11px, 2.8vw, 13px);
+            opacity: 0.9;
+            line-height: 1.4;
+            padding-bottom: 30px;
+        }
+        
+        .evolution-effect {
+            position: absolute;
+            pointer-events: none;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffdf00;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: evolutionPop 1s ease-out;
+        }
+        
+        @keyframes evolutionPop {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        
+        /* モバイル対応 */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+                padding-top: max(5px, env(safe-area-inset-top));
+                padding-bottom: max(80px, env(safe-area-inset-bottom));
+            }
+            
+            #gameContainer {
+                padding: 10px;
+                margin-bottom: max(60px, calc(env(safe-area-inset-bottom) + 40px));
+            }
+            
+            #gameCanvas {
+                border-width: 2px;
+                margin-bottom: 15px;
+                max-height: 50vh;
+            }
+            
+            button {
+                padding: 14px 18px;
+                font-size: 16px;
+                margin-bottom: 8px;
+            }
+            
+            #controls {
+                margin-bottom: 25px;
+            }
+            
+            .instructions {
+                padding-bottom: 50px;
+            }
+        }
+        
+        @supports (padding: max(0px)) {
+            body {
+                padding-bottom: max(30px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>🎮 あのゲーム 🎮</h1>
+        
+        <div id="gameInfo">
+            <div>スコア: <span id="score">0</span></div>
+            <div>最高スコア: <span id="highScore">0</span></div>
+        </div>
+
+        <div id="nextBall">
+            次のボール: 
+            <div id="nextBallPreview"></div>
+        </div>
+        
+        <div style="position: relative;">
+            <canvas id="gameCanvas" width="400" height="480"></canvas>
+            <div id="gameOver">
+                <h2>ゲームオーバー！</h2>
+                <p>最終スコア: <span id="finalScore">0</span></p>
+                <button onclick="restartGame()">もう一度プレイ</button>
+            </div>
+        </div>
+        
+        <div id="controls">
+            <button onclick="restartGame()">リスタート</button>
+            <button onclick="togglePause()">ポーズ</button>
+        </div>
+        
+        <div class="instructions">
+            <p>📱 <strong>スマホ操作:</strong> 画面をタップしてボールを落とそう！</p>
+            <p>🎯 同じ顔同士をくっつけて進化させよう！</p>
+            <p>🏆 <strong>目標:</strong> Gボール同士を合体させてゲームクリア！</p>
+            <p>💫 青いメガネの顔（H）同士は消えるよ！</p>
+        </div>
+    </div>
+
+    <script>
+        let game;
+
+        class FaceSuikaGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.balls = [];
+                this.score = 0;
+                this.highScore = localStorage.getItem('anoGameHighScore') || 0;
+                this.gameRunning = true;
+                this.dropLine = 100;
+                this.gravity = 0.3;
+                this.friction = 0.98;
+                this.nextBallType = 0;
+                this.gameOver = false;
+                this.isPaused = false;
+                this.overlapStartTime = null;
+                this.gameCleared = false;
+                this.canvasWidth = 400;
+                this.canvasHeight = 480;
+                
+                this.ballTypes = [
+                    { size: 25, score: 1, color: '#ff9999', name: 'A' },
+                    { size: 30, score: 3, color: '#ffcc99', name: 'B' },
+                    { size: 35, score: 6, color: '#99ff99', name: 'C' },
+                    { size: 40, score: 10, color: '#99ccff', name: 'D' },
+                    { size: 45, score: 15, color: '#cc99ff', name: 'E' },
+                    { size: 50, score: 21, color: '#ffff99', name: 'F' },
+                    { size: 55, score: 28, color: '#ff99cc', name: 'G' },
+                    { size: 35, score: -5, color: '#00ccff', name: 'H' }
+                ];
+                
+                this.images = [];
+                this.imagesLoaded = 0;
+                this.loadImages();
+                
+                this.setupEventListeners();
+                this.generateNextBall();
+                this.updateDisplay();
+                this.gameLoop();
+            }
+            
+            loadImages() {
+                // 固定画像パス（images/フォルダから読み込み）
+                const imagePaths = [
+                    'images/A.png',
+                    'images/B.png', 
+                    'images/C.png',
+                    'images/D.png',
+                    'images/E.png',
+                    'images/F.png',
+                    'images/G.png',
+                    'images/H.png'
+                ];
+                
+                imagePaths.forEach((path, index) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.imagesLoaded++;
+                        console.log(`画像 ${String.fromCharCode(65 + index)} 読み込み完了`);
+                        if (this.imagesLoaded === 8) {
+                            console.log('全画像読み込み完了！');
+                            this.updateNextBallPreview();
+                        }
+                    };
+                    img.onerror = () => {
+                        console.log(`画像 ${path} 読み込み失敗 - フォールバック使用`);
+                        this.imagesLoaded++;
+                    };
+                    img.src = path;
+                    this.images.push(img);
+                });
+            }
+            
+            setupEventListeners() {
+                this.canvas.addEventListener('click', (e) => this.handleClick(e));
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.handleTouch(e);
+                }, { passive: false });
+                
+                document.getElementById('highScore').textContent = this.highScore;
+                
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        this.togglePause();
+                    }
+                });
+
+                window.addEventListener('resize', () => {
+                    setTimeout(() => {
+                        this.resizeCanvas();
+                    }, 100);
+                });
+                
+                this.resizeCanvas();
+            }
+            
+            resizeCanvas() {
+                const container = document.getElementById('gameContainer');
+                const containerWidth = container.offsetWidth - 30;
+                const maxWidth = 400;
+                const width = Math.min(containerWidth, maxWidth);
+                const height = Math.floor(width * 1.2);
+                const maxHeight = window.innerHeight * 0.5;
+                const finalHeight = Math.min(height, maxHeight);
+                
+                const ratio = window.devicePixelRatio || 1;
+                this.canvas.width = width * ratio;
+                this.canvas.height = finalHeight * ratio;
+                this.canvas.style.width = width + 'px';
+                this.canvas.style.height = finalHeight + 'px';
+                
+                this.ctx.scale(ratio, ratio);
+                
+                this.canvasWidth = width;
+                this.canvasHeight = finalHeight;
+                this.dropLine = finalHeight * 0.15;
+            }
+            
+            handleClick(e) {
+                if (this.gameOver || this.isPaused || this.gameCleared) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) * (this.canvasWidth / rect.width);
+                
+                this.dropBall(x);
+            }
+            
+            handleTouch(e) {
+                if (this.gameOver || this.isPaused || this.gameCleared) return;
+                
+                const touch = e.touches[0];
+                const rect = this.canvas.getBoundingClientRect();
+                const x = (touch.clientX - rect.left) * (this.canvasWidth / rect.width);
+                
+                this.dropBall(x);
+            }
+            
+            dropBall(x) {
+                const ballSize = this.ballTypes[this.nextBallType].size;
+                x = Math.max(ballSize, Math.min(this.canvasWidth - ballSize, x));
+                
+                const newBall = {
+                    x: x,
+                    y: ballSize,
+                    vx: 0,
+                    vy: 1,
+                    type: this.nextBallType,
+                    size: this.ballTypes[this.nextBallType].size,
+                    id: Date.now() + Math.random()
+                };
+                
+                this.balls.push(newBall);
+                this.generateNextBall();
+                
+                setTimeout(() => {
+                    if (!this.gameOver) {
+                        this.checkGameOver();
+                    }
+                }, 500);
+            }
+            
+            generateNextBall() {
+                if (Math.random() < 0.1) {
+                    this.nextBallType = 7;
+                } else {
+                    this.nextBallType = Math.floor(Math.random() * 3);
+                }
+                this.updateNextBallPreview();
+            }
+            
+            updateNextBallPreview() {
+                const preview = document.getElementById('nextBallPreview');
+                const type = this.ballTypes[this.nextBallType];
+                const img = this.images[this.nextBallType];
+                
+                if (img && img.complete && img.naturalWidth > 0) {
+                    preview.style.backgroundImage = `url(${img.src})`;
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
+                    preview.textContent = '';
+                } else {
+                    preview.style.backgroundImage = 'none';
+                    preview.style.backgroundColor = type.color;
+                    preview.textContent = type.name;
+                }
+            }
+            
+            update() {
+                if (this.isPaused || this.gameOver || this.gameCleared) return;
+                
+                for (let i = 0; i < this.balls.length; i++) {
+                    const ball = this.balls[i];
+                    
+                    ball.vy += this.gravity;
+                    ball.x += ball.vx;
+                    ball.y += ball.vy;
+                    
+                    if (ball.x - ball.size <= 0 || ball.x + ball.size >= this.canvasWidth) {
+                        ball.x = Math.max(ball.size, Math.min(this.canvasWidth - ball.size, ball.x));
+                        ball.vx *= -0.7;
+                    }
+                    
+                    if (ball.y + ball.size >= this.canvasHeight) {
+                        ball.y = this.canvasHeight - ball.size;
+                        ball.vy *= -0.5;
+                        ball.vx *= this.friction;
+                    }
+                    
+                    ball.vx *= this.friction;
+                    ball.vy *= 0.999;
+                }
+                
+                this.handleCollisions();
+                this.checkGameOver();
+            }
+            
+            handleCollisions() {
+                for (let i = 0; i < this.balls.length; i++) {
+                    for (let j = i + 1; j < this.balls.length; j++) {
+                        const ball1 = this.balls[i];
+                        const ball2 = this.balls[j];
+                        
+                        const dx = ball2.x - ball1.x;
+                        const dy = ball2.y - ball1.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const minDistance = ball1.size + ball2.size;
+                        
+                        if (distance < minDistance) {
+                            const angle = Math.atan2(dy, dx);
+                            const sin = Math.sin(angle);
+                            const cos = Math.cos(angle);
+                            
+                            const overlap = minDistance - distance;
+                            const moveX = cos * overlap * 0.5;
+                            const moveY = sin * overlap * 0.5;
+                            
+                            ball1.x -= moveX;
+                            ball1.y -= moveY;
+                            ball2.x += moveX;
+                            ball2.y += moveY;
+                            
+                            const v1n = ball1.vx * cos + ball1.vy * sin;
+                            const v2n = ball2.vx * cos + ball2.vy * sin;
+                            
+                            ball1.vx += (v2n - v1n) * cos * 0.8;
+                            ball1.vy += (v2n - v1n) * sin * 0.8;
+                            ball2.vx += (v1n - v2n) * cos * 0.8;
+                            ball2.vy += (v1n - v2n) * sin * 0.8;
+                            
+                            this.checkMerge(i, j);
+                        }
+                    }
+                }
+            }
+            
+            checkMerge(i, j) {
+                const ball1 = this.balls[i];
+                const ball2 = this.balls[j];
+                
+                if (ball1.type === 7 && ball2.type === 7) {
+                    this.showEvolutionEffect((ball1.x + ball2.x) / 2, (ball1.y + ball2.y) / 2, '消滅！');
+                    this.score += 10;
+                    this.balls.splice(Math.max(i, j), 1);
+                    this.balls.splice(Math.min(i, j), 1);
+                    return;
+                }
+                
+                if (ball1.type === 6 && ball2.type === 6) {
+                    const centerX = (ball1.x + ball2.x) / 2;
+                    const centerY = (ball1.y + ball2.y) / 2;
+                    
+                    this.showEvolutionEffect(centerX, centerY, '🎉 GAME CLEAR! 🎉');
+                    this.score += 100;
+                    
+                    this.balls.splice(Math.max(i, j), 1);
+                    this.balls.splice(Math.min(i, j), 1);
+                    
+                    setTimeout(() => {
+                        this.gameCleared = true;
+                        this.showGameClear();
+                    }, 1000);
+                    
+                    return;
+                }
+                
+                if (ball1.type === ball2.type && ball1.type !== 7 && ball1.type < 6) {
+                    const centerX = (ball1.x + ball2.x) / 2;
+                    const centerY = (ball1.y + ball2.y) / 2;
+                    const nextType = ball1.type + 1;
+                    
+                    this.showEvolutionEffect(centerX, centerY, '進化！');
+                    this.score += this.ballTypes[nextType].score;
+                    
+                    const newBall = {
+                        x: centerX,
+                        y: centerY,
+                        vx: 0,
+                        vy: -2,
+                        type: nextType,
+                        size: this.ballTypes[nextType].size,
+                        id: Date.now() + Math.random()
+                    };
+                    
+                    this.balls.splice(Math.max(i, j), 1);
+                    this.balls.splice(Math.min(i, j), 1);
+                    this.balls.push(newBall);
+                }
+            }
+            
+            showEvolutionEffect(x, y, text) {
+                const effect = document.createElement('div');
+                effect.className = 'evolution-effect';
+                effect.textContent = text;
+                effect.style.left = x + 'px';
+                effect.style.top = y + 'px';
+                
+                document.getElementById('gameContainer').appendChild(effect);
+                setTimeout(() => effect.remove(), 1000);
+            }
+            
+            showGameClear() {
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('anoGameHighScore', this.highScore);
+                    document.getElementById('highScore').textContent = this.highScore;
+                }
+                
+                const gameOverDiv = document.getElementById('gameOver');
+                gameOverDiv.innerHTML = `
+                    <h2>🎉 GAME CLEAR! 🎉</h2>
+                    <p style="font-size: 18px; color: #4CAF50; margin: 15px 0;">
+                        おめでとうございます！<br>
+                        大人MIZYU同士を合体させました！
+                    </p>
+                    <p>最終スコア: <span style="color: #FFD700; font-size: 24px; font-weight: bold;">${this.score}</span></p>
+                    ${this.score === this.highScore ? '<p style="color: #FF6B6B;">🎊 新記録達成！ 🎊</p>' : ''}
+                    <button onclick="restartGame()" style="margin-top: 20px;">もう一度プレイ</button>
+                `;
+                gameOverDiv.style.display = 'block';
+            }
+            
+            render() {
+                this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+                
+                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                this.ctx.setLineDash([5, 5]);
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, this.dropLine);
+                this.ctx.lineTo(this.canvasWidth, this.dropLine);
+                this.ctx.stroke();
+                this.ctx.setLineDash([]);
+                
+                this.balls.forEach(ball => {
+                    const type = this.ballTypes[ball.type];
+                    const img = this.images[ball.type];
+                    
+                    this.ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.shadowOffsetX = 2;
+                    this.ctx.shadowOffsetY = 2;
+                    
+                    if (img && img.complete && img.naturalWidth > 0) {
+                        this.ctx.save();
+                        this.ctx.beginPath();
+                        this.ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
+                        this.ctx.clip();
+                        
+                        const imgSize = ball.size * 2;
+                        this.ctx.drawImage(
+                            img, 
+                            ball.x - ball.size, 
+                            ball.y - ball.size, 
+                            imgSize, 
+                            imgSize
+                        );
+                        this.ctx.restore();
+                        
+                        this.ctx.strokeStyle = '#fff';
+                        this.ctx.lineWidth = 3;
+                        this.ctx.beginPath();
+                        this.ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
+                        this.ctx.stroke();
+                    } else {
+                        this.ctx.fillStyle = type.color;
+                        this.ctx.strokeStyle = '#fff';
+                        this.ctx.lineWidth = 2;
+                        
+                        this.ctx.beginPath();
+                        this.ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.stroke();
+                        
+                        this.ctx.fillStyle = '#000';
+                        this.ctx.font = 'bold 16px Arial';
+                        this.ctx.textAlign = 'center';
+                        this.ctx.textBaseline = 'middle';
+                        this.ctx.fillText(type.name, ball.x, ball.y);
+                    }
+                    
+                    this.ctx.shadowColor = 'transparent';
+                    this.ctx.shadowBlur = 0;
+                    this.ctx.shadowOffsetX = 0;
+                    this.ctx.shadowOffsetY = 0;
+                });
+                
+                if (this.isPaused) {
+                    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+                    
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.font = `bold ${Math.floor(this.canvasWidth / 10)}px Arial`;
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('PAUSE', this.canvasWidth / 2, this.canvasHeight / 2);
+                }
+            }
+            
+            checkGameOver() {
+                let hasOverlap = false;
+                for (const ball of this.balls) {
+                    if (ball.y - ball.size <= this.dropLine + 10) {
+                        hasOverlap = true;
+                        break;
+                    }
+                }
+                
+                if (hasOverlap) {
+                    if (!this.overlapStartTime) {
+                        this.overlapStartTime = Date.now();
+                    } else if (Date.now() - this.overlapStartTime > 2000) {
+                        this.endGame();
+                    }
+                } else {
+                    this.overlapStartTime = null;
+                }
+            }
+            
+            endGame() {
+                this.gameOver = true;
+                
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('anoGameHighScore', this.highScore);
+                    document.getElementById('highScore').textContent = this.highScore;
+                }
+                
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('gameOver').style.display = 'block';
+            }
+            
+            restart() {
+                this.balls = [];
+                this.score = 0;
+                this.gameOver = false;
+                this.isPaused = false;
+                this.overlapStartTime = null;
+                this.gameCleared = false;
+                this.generateNextBall();
+                this.updateDisplay();
+                document.getElementById('gameOver').style.display = 'none';
+            }
+            
+            togglePause() {
+                this.isPaused = !this.isPaused;
+            }
+            
+            updateDisplay() {
+                document.getElementById('score').textContent = this.score;
+            }
+            
+            gameLoop() {
+                this.update();
+                this.render();
+                this.updateDisplay();
+                
+                if (this.gameRunning) {
+                    requestAnimationFrame(() => this.gameLoop());
+                }
+            }
+        }
+
+        function restartGame() {
+            game.restart();
+        }
+        
+        function togglePause() {
+            game.togglePause();
+        }
+
+        window.addEventListener('load', () => {
+            game = new FaceSuikaGame();
+        });
+    </script>
+</body>
+</html>
