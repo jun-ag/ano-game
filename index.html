@@ -9,7 +9,7 @@
             margin: 0;
             padding: 10px;
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #354fc2 0%, #040a8a 100%);
             color: white;
             text-align: center;
             overflow-x: hidden;
@@ -91,7 +91,7 @@
         }
         
         button {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            background: linear-gradient(45deg, #ab0000, #d50c0c);
             color: white;
             border: none;
             padding: 12px 20px;
@@ -194,8 +194,8 @@
         <h1>🎮 あのゲーム 🎮</h1>
         
         <div id="gameInfo">
-            <div>スコア: <span id="score">0</span></div>
-            <div>最高スコア: <span id="highScore">0</span></div>
+            <div>SCORE: <span id="score">0</span></div>
+            <div>HIGH SCORE: <span id="highScore">0</span></div>
         </div>
 
         <div id="nextBall">
@@ -206,22 +206,22 @@
         <div style="position: relative;">
             <canvas id="gameCanvas" width="400" height="480"></canvas>
             <div id="gameOver">
-                <h2>ゲームオーバー！</h2>
-                <p>最終スコア: <span id="finalScore">0</span></p>
-                <button onclick="restartGame()">もう一度プレイ</button>
+                <h2>GAME OVER</h2>
+                <p>FINAL SCORE: <span id="finalScore">0</span></p>
+                <button onclick="restartGame()">Play Again?</button>
             </div>
         </div>
         
         <div id="controls">
-            <button onclick="restartGame()">リスタート</button>
-            <button onclick="togglePause()">ポーズ</button>
+            <button onclick="restartGame()">Restart</button>
+            <button onclick="togglePause()">Pause</button>
         </div>
         
         <div class="instructions">
             <p>📱 <strong>スマホ操作:</strong> 画面をタップしてボールを落とそう！</p>
             <p>🎯 同じ顔同士をくっつけて進化させよう！</p>
-            <p>🏆 <strong>目標:</strong> Gボール同士を合体させてゲームクリア！</p>
-            <p>💫 青いメガネの顔（H）同士は消えるよ！</p>
+            <p>🏆 <strong>目標:</strong> 大人MIZYU同士を合体させてゲームクリア！</p>
+            <p>💫 お邪魔MIZYU同士は消えるよ！</p>
         </div>
     </div>
 
