@@ -216,6 +216,11 @@
     </style>
 </head>
 <body>
+    <!-- Audio Elements -->
+    <audio id="bgmAudio" src="audio/bgm.mp3" loop preload="auto"></audio>
+    <audio id="successAudio" src="audio/success.mp3" preload="auto"></audio>
+    <audio id="failAudio" src="audio/fail.mp3" preload="auto"></audio>
+
     <div id="gameContainer">
         <h1>🎮 Ese Juego 🎮</h1>
         
@@ -257,6 +262,9 @@
         class FaceSuikaGame {
             constructor() {
                 this.canvas = document.getElementById('gameCanvas');
+                this.bgmAudio = document.getElementById('bgmAudio');
+                this.successAudio = document.getElementById('successAudio');
+                this.failAudio = document.getElementById('failAudio');
                 this.ctx = this.canvas.getContext('2d');
                 this.balls = [];
                 this.score = 0;
@@ -287,11 +295,36 @@
                 this.images = [];
                 this.imagesLoaded = 0;
                 this.loadImages();
-                
+
                 this.setupEventListeners();
+                this.playBGM();
                 this.generateNextBall();
                 this.updateDisplay();
                 this.gameLoop();
+            }
+
+            playBGM() {
+                if (this.bgmAudio) {
+                    this.bgmAudio.currentTime = 0;
+                    this.bgmAudio.volume = 0.5;
+                    this.bgmAudio.play().catch(()=>{});
+                }
+            }
+
+            playSuccess() {
+                if (this.successAudio) {
+                    this.successAudio.currentTime = 0;
+                    this.successAudio.volume = 0.8;
+                    this.successAudio.play().catch(()=>{});
+                }
+            }
+
+            playFail() {
+                if (this.failAudio) {
+                    this.failAudio.currentTime = 0;
+                    this.failAudio.volume = 0.8;
+                    this.failAudio.play().catch(()=>{});
+                }
             }
             
             loadImages() {
@@ -576,6 +609,7 @@
             }
             
             showGameClear() {
+                this.playSuccess();
                 if (this.score > this.highScore) {
                     this.highScore = this.score;
                     localStorage.setItem('anoGameHighScore', this.highScore);
@@ -692,6 +726,7 @@
             }
             
             endGame() {
+                this.playFail();
                 this.gameOver = true;
                 
                 if (this.score > this.highScore) {
@@ -705,6 +740,7 @@
             }
             
             restart() {
+                this.playBGM();
                 this.balls = [];
                 this.score = 0;
                 this.gameOver = false;
