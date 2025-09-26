@@ -139,7 +139,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.3);
             color: white;
             padding: 30px 20px;
             border-radius: 20px;
@@ -260,6 +260,12 @@
         let game;
 
         class FaceSuikaGame {
+            stopBGM() {
+                if (this.bgmAudio) {
+                    this.bgmAudio.pause();
+                    this.bgmAudio.currentTime = 0;
+                }
+            }
             constructor() {
                 this.canvas = document.getElementById('gameCanvas');
                 this.bgmAudio = document.getElementById('bgmAudio');
@@ -289,7 +295,8 @@
                     { size: 45, score: 15, color: '#cc99ff', name: 'E' },
                     { size: 50, score: 21, color: '#ffff99', name: 'F' },
                     { size: 55, score: 28, color: '#ff99cc', name: 'G' },
-                    { size: 35, score: -5, color: '#00ccff', name: 'H' }
+                    { size: 35, score: -5, color: '#00ccff', name: 'H' },
+                    { size: 90, score: 0, color: '#84e340', name: 'I' } // type:8
                 ];
                 
                 this.images = [];
@@ -337,7 +344,8 @@
                     'images/E.png',
                     'images/F.png',
                     'images/G.png',
-                    'images/H.png'
+                    'images/H.png',
+                    'images/I.png'
                 ];
                 
                 imagePaths.forEach((path, index) => {
@@ -547,6 +555,7 @@
                 const ball1 = this.balls[i];
                 const ball2 = this.balls[j];
                 
+                // 妨害玉（H）の合体
                 if (ball1.type === 7 && ball2.type === 7) {
                     this.showEvolutionEffect((ball1.x + ball2.x) / 2, (ball1.y + ball2.y) / 2, '¡Desaparecen!');
                     this.score += 10;
@@ -554,43 +563,55 @@
                     this.balls.splice(Math.min(i, j), 1);
                     return;
                 }
-                
+                // Gボール同士 → Iボール進化
                 if (ball1.type === 6 && ball2.type === 6) {
                     const centerX = (ball1.x + ball2.x) / 2;
                     const centerY = (ball1.y + ball2.y) / 2;
-                    
+                    const vx = (ball1.vx + ball2.vx) / 2;
+                    const vy = (ball1.vy + ball2.vy) / 2;
                     this.showEvolutionEffect(centerX, centerY, '🎉 ¡Victoria! 🎉');
                     this.score += 100;
-                    
+
+                    // 新しいIボールを合体位置・速度で生成
+                    const newBall = {
+                        x: centerX,
+                        y: centerY,
+                        vx: vx,
+                        vy: vy - 2, // 進化時ジャンプ演出
+                        type: 8, // Iボール
+                        size: this.ballTypes[8].size,
+                        id: Date.now() + Math.random()
+                    };
+                    // Gボール2つ消す
                     this.balls.splice(Math.max(i, j), 1);
                     this.balls.splice(Math.min(i, j), 1);
-                    
+                    // Iボール追加
+                    this.balls.push(newBall);
+
                     setTimeout(() => {
                         this.gameCleared = true;
                         this.showGameClear();
                     }, 1000);
-                    
                     return;
                 }
-                
+                // 通常進化
                 if (ball1.type === ball2.type && ball1.type !== 7 && ball1.type < 6) {
                     const centerX = (ball1.x + ball2.x) / 2;
                     const centerY = (ball1.y + ball2.y) / 2;
                     const nextType = ball1.type + 1;
-                    
+                    const vx = (ball1.vx + ball2.vx) / 2;
+                    const vy = (ball1.vy + ball2.vy) / 2;
                     this.showEvolutionEffect(centerX, centerY, '¡Evolución!');
                     this.score += this.ballTypes[nextType].score;
-                    
                     const newBall = {
                         x: centerX,
                         y: centerY,
-                        vx: 0,
-                        vy: -2,
+                        vx: vx,
+                        vy: vy - 2,
                         type: nextType,
                         size: this.ballTypes[nextType].size,
                         id: Date.now() + Math.random()
                     };
-                    
                     this.balls.splice(Math.max(i, j), 1);
                     this.balls.splice(Math.min(i, j), 1);
                     this.balls.push(newBall);
@@ -609,6 +630,7 @@
             }
             
             showGameClear() {
+                this.stopBGM();
                 this.playSuccess();
                 if (this.score > this.highScore) {
                     this.highScore = this.score;
@@ -619,7 +641,7 @@
                 const gameOverDiv = document.getElementById('gameOver');
                 gameOverDiv.innerHTML = `
                     <h2>🎉 ¡Victoria! 🎉</h2>
-                    <p style="font-size: 18px; color: #4CAF50; margin: 15px 0;">
+                    <p style="font-size: 18px; color: #FFFFFF; margin: 15px 0;">
                         ¡Felicidades!<br>
                         ¡Has combinado dos MIZYU adultos!
                     </p>
@@ -726,6 +748,7 @@
             }
             
             endGame() {
+                this.stopBGM();
                 this.playFail();
                 this.gameOver = true;
                 
