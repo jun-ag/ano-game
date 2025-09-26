@@ -1,30 +1,30 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>あのゲーム</title>
+    <title>Ese Juego</title>
 
     <!-- OGP (Open Graph Protocol) -->
-    <meta property="og:title" content="あのゲーム - スイカゲーム風落ちゲー">
-    <meta property="og:description" content="同じ顔同士をくっつけて進化させよう。オトナキャラ同士でゲームクリア目指せ！スマホ対応。">
+    <meta property="og:title" content="Ese Juego - Juego tipo Suika con MIZYU">
+    <meta property="og:description" content="Une las mismas caras para evolucionar. ¡Intenta ganar combinando los personajes adultos MIZYU! Compatible con móviles.">
     <meta property="og:image" content="https://ano-game-production.up.railway.app/images/ogp.png">
     <meta property="og:url" content="https://ano-game-production.up.railway.app/">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="あのゲーム">
-    <meta property="og:locale" content="ja_JP">
+    <meta property="og:site_name" content="Ese Juego">
+    <meta property="og:locale" content="es_ES">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@your_twitter">
-    <meta name="twitter:title" content="あのゲーム - スイカゲーム風落ちゲー">
-    <meta name="twitter:description" content="顔画像を使った中毒性抜群のパズルゲーム！同じ顔同士をくっつけて進化させよう。Gボール同士でゲームクリア目指せ！スマホ対応。">
+    <meta name="twitter:title" content="Ese Juego - Juego tipo Suika con MIZYU">
+    <meta name="twitter:description" content="¡Juego de puzzle adictivo con imágenes de caras! Une las mismas para evolucionar. ¡Gana combinando las bolas MIZYU!">
     <meta name="twitter:image" content="https://ano-game-production.up.railway.app/images/ogp.png">
     
-    <!-- 一般的なメタタグ -->
-    <meta name="description" content="同じ顔同士をくっつけて進化させよう。オトナキャラ同士でゲームクリア目指せ！スマホ対応。">
-    <meta name="keywords" content="スイカゲーム,落ちゲー,パズルゲーム,顔ゲーム,ブラウザゲーム,無料ゲーム,あのゲーム">
-    <meta name="author" content="あのゲーム制作者">
+    <!-- Meta general -->
+    <meta name="description" content="Une las mismas caras para evolucionar. ¡Intenta ganar combinando los personajes adultos MIZYU! Compatible con móviles.">
+    <meta name="keywords" content="Suika Game, puzzle, juego de caída, juego de caras, juego web, juego gratis, Ese Juego, MIZYU">
+    <meta name="author" content="Creador de Ese Juego">
     
     <!-- favicon -->
     <link rel="icon" type="image/png" href="images/A.png">
@@ -174,7 +174,7 @@
             100% { transform: scale(1); opacity: 0; }
         }
         
-        /* モバイル対応 */
+        /* Adaptación móvil */
         @media (max-width: 768px) {
             body {
                 padding: 5px;
@@ -217,37 +217,37 @@
 </head>
 <body>
     <div id="gameContainer">
-        <h1>🎮 あのゲーム 🎮</h1>
+        <h1>🎮 Ese Juego 🎮</h1>
         
         <div id="gameInfo">
-            <div>SCORE: <span id="score">0</span></div>
-            <div>HIGH SCORE: <span id="highScore">0</span></div>
+            <div>PUNTOS: <span id="score">0</span></div>
+            <div>RÉCORD: <span id="highScore">0</span></div>
         </div>
 
         <div id="nextBall">
-            次のボール: 
+            Próxima bola: 
             <div id="nextBallPreview"></div>
         </div>
         
         <div style="position: relative;">
             <canvas id="gameCanvas" width="400" height="480"></canvas>
             <div id="gameOver">
-                <h2>GAME OVER</h2>
-                <p>FINAL SCORE: <span id="finalScore">0</span></p>
-                <button onclick="restartGame()">Play Again?</button>
+                <h2>FIN DEL JUEGO</h2>
+                <p>PUNTAJE FINAL: <span id="finalScore">0</span></p>
+                <button onclick="restartGame()">¿Jugar de nuevo?</button>
             </div>
         </div>
         
         <div id="controls">
-            <button onclick="restartGame()">Restart</button>
-            <button onclick="togglePause()">Pause</button>
+            <button onclick="restartGame()">Reiniciar</button>
+            <button onclick="togglePause()">Pausa</button>
         </div>
         
         <div class="instructions">
-            <p>📱 <strong>スマホ操作:</strong> 画面をタップしてボールを落とそう！</p>
-            <p>🎯 同じ顔同士をくっつけて進化させよう！</p>
-            <p>🏆 <strong>目標:</strong> 大人MIZYU同士を合体させてゲームクリア！</p>
-            <p>💫 お邪魔MIZYU同士は消えるよ！</p>
+            <p>📱 <strong>En móviles:</strong> ¡Toca la pantalla para soltar la bola!</p>
+            <p>🎯 ¡Une las mismas caras para que evolucionen!</p>
+            <p>🏆 <strong>Objetivo:</strong> ¡Combina dos MIZYU adultos para ganar el juego!</p>
+            <p>💫 ¡Los MIZYU molestos desaparecen al juntarse!</p>
         </div>
     </div>
 
@@ -295,7 +295,7 @@
             }
             
             loadImages() {
-                // 固定画像パス（images/フォルダから読み込み）
+                // Rutas de imágenes fijas (leer desde images/)
                 const imagePaths = [
                     'images/A.png',
                     'images/B.png', 
@@ -311,14 +311,14 @@
                     const img = new Image();
                     img.onload = () => {
                         this.imagesLoaded++;
-                        console.log(`画像 ${String.fromCharCode(65 + index)} 読み込み完了`);
+                        console.log(`Imagen ${String.fromCharCode(65 + index)} cargada`);
                         if (this.imagesLoaded === 8) {
-                            console.log('全画像読み込み完了！');
+                            console.log('¡Todas las imágenes cargadas!');
                             this.updateNextBallPreview();
                         }
                     };
                     img.onerror = () => {
-                        console.log(`画像 ${path} 読み込み失敗 - フォールバック使用`);
+                        console.log(`Error al cargar la imagen ${path} - Usando alternativa`);
                         this.imagesLoaded++;
                     };
                     img.src = path;
@@ -515,7 +515,7 @@
                 const ball2 = this.balls[j];
                 
                 if (ball1.type === 7 && ball2.type === 7) {
-                    this.showEvolutionEffect((ball1.x + ball2.x) / 2, (ball1.y + ball2.y) / 2, '消滅！');
+                    this.showEvolutionEffect((ball1.x + ball2.x) / 2, (ball1.y + ball2.y) / 2, '¡Desaparecen!');
                     this.score += 10;
                     this.balls.splice(Math.max(i, j), 1);
                     this.balls.splice(Math.min(i, j), 1);
@@ -526,7 +526,7 @@
                     const centerX = (ball1.x + ball2.x) / 2;
                     const centerY = (ball1.y + ball2.y) / 2;
                     
-                    this.showEvolutionEffect(centerX, centerY, '🎉 GAME CLEAR! 🎉');
+                    this.showEvolutionEffect(centerX, centerY, '🎉 ¡Victoria! 🎉');
                     this.score += 100;
                     
                     this.balls.splice(Math.max(i, j), 1);
@@ -545,7 +545,7 @@
                     const centerY = (ball1.y + ball2.y) / 2;
                     const nextType = ball1.type + 1;
                     
-                    this.showEvolutionEffect(centerX, centerY, '進化！');
+                    this.showEvolutionEffect(centerX, centerY, '¡Evolución!');
                     this.score += this.ballTypes[nextType].score;
                     
                     const newBall = {
@@ -584,14 +584,14 @@
                 
                 const gameOverDiv = document.getElementById('gameOver');
                 gameOverDiv.innerHTML = `
-                    <h2>🎉 GAME CLEAR! 🎉</h2>
+                    <h2>🎉 ¡Victoria! 🎉</h2>
                     <p style="font-size: 18px; color: #4CAF50; margin: 15px 0;">
-                        おめでとうございます！<br>
-                        大人MIZYU同士を合体させました！
+                        ¡Felicidades!<br>
+                        ¡Has combinado dos MIZYU adultos!
                     </p>
-                    <p>最終スコア: <span style="color: #FFD700; font-size: 24px; font-weight: bold;">${this.score}</span></p>
-                    ${this.score === this.highScore ? '<p style="color: #FF6B6B;">🎊 新記録達成！ 🎊</p>' : ''}
-                    <button onclick="restartGame()" style="margin-top: 20px;">もう一度プレイ</button>
+                    <p>Puntaje final: <span style="color: #FFD700; font-size: 24px; font-weight: bold;">${this.score}</span></p>
+                    ${this.score === this.highScore ? '<p style="color: #FF6B6B;">🎊 ¡Nuevo récord! 🎊</p>' : ''}
+                    <button onclick="restartGame()" style="margin-top: 20px;">Jugar otra vez</button>
                 `;
                 gameOverDiv.style.display = 'block';
             }
@@ -667,7 +667,7 @@
                     this.ctx.fillStyle = '#fff';
                     this.ctx.font = `bold ${Math.floor(this.canvasWidth / 10)}px Arial`;
                     this.ctx.textAlign = 'center';
-                    this.ctx.fillText('PAUSE', this.canvasWidth / 2, this.canvasHeight / 2);
+                    this.ctx.fillText('PAUSA', this.canvasWidth / 2, this.canvasHeight / 2);
                 }
             }
             
